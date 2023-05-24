@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Exchange Rate Chart</title>
+    <style>
+        /* Table styling */
+        .currency-table {
+          margin-top: 20px;
+        }
+    
+        table {
+          border-collapse: collapse;
+        }
+    
+        thead {
+          background-color: #f5f5f5;
+        }
+    
+        th, td {
+          padding: 10px;
+          text-align: left;
+          border-bottom: 1px solid #ddd;
+        }
+    
+        th {
+          font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Display error message -->
+    {% if error_message != '' %}
+    <div id='error_message'>
+        <p style="color:red">{{ error_message }}</p>
+    </div>
+    {% endif %}
+
+    
+    <!-- Input form -->
+    <div id='form'>
+    <h2>Select Currency and Date Range</h2>
+        <form method="post" action="/">
+            <!-- Currency selection -->
+            <label for="currency">Currency:</label>
+            <select class="form-control" id="currency" name="currency">
+                {% for currency in available_currencies %}
+                    <option value="{{ currency }}">{{ currency }}</option>
+                {% endfor %}
+            </select><br>
+            
+            <!-- Start date selection -->
+            <label for="start_date">Start Date:</label>
+            <input type="date" id="start_date" name="start_date" max="{{ yesterday }}" required><br>
+            
+            <!-- End date selection -->
+            <label for="end_date">End Date:</label>
+            <input type="date" id="end_date" name="end_date" max="{{ yesterday }}" required><br>
+            
+            <!-- Generate chart button -->
+            <input type="submit" value="Generate Chart">
+        </form>
+    </div>
+
+    <!-- Display chart and currency rates table -->
+    {% if chart_available %}
+    <div id='chart'>
+        <img src="../static/chart.png" alt="Exchange Rate Chart">
+    </div>
+
+    <div id='table'>
+        <table class="currency-table">
+            <thead>
+              <tr>
+                <!-- Column headers -->
+                <th>Date</th>
+                <th>Rate</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in currency_data %}
+              <tr>
+                <!-- Rows with currency rate data -->
+                <td>{{ row[0] }}</td>
+                <td>{{ row[1] }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+    </div>
+    {% endif %}
+
+</body>
+</html>
