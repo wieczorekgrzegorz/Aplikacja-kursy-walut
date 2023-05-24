@@ -32,7 +32,7 @@
     <!-- Display error message -->
     {% if error_message != '' %}
     <div id='error_message'>
-        <p style="color:red">{{ error_message }}</p>
+        <p style="color:red"><b>{{ error_message }}</b></p>
     </div>
     {% endif %}
 
@@ -51,11 +51,11 @@
             
             <!-- Start date selection -->
             <label for="start_date">Start Date:</label>
-            <input type="date" id="start_date" name="start_date" max="{{ yesterday }}" required><br>
+            <input type="date" id="start_date" name="start_date" max="{{ yesterday }}" required value ="{{ start_date }}"><br>
             
             <!-- End date selection -->
             <label for="end_date">End Date:</label>
-            <input type="date" id="end_date" name="end_date" max="{{ yesterday }}" required><br>
+            <input type="date" id="end_date" name="end_date" max="{{ yesterday }}" required value ="{{ end_date }}"><br>
             
             <!-- Generate chart button -->
             <input type="submit" value="Generate Chart">

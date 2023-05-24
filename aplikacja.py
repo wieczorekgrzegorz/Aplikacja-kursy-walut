@@ -153,8 +153,9 @@ def generate_chart(currency:str, start_date:str, end_date:str):
         # Edit the axes
         ax.set_xlabel('Date')
         ax.set_ylabel('Exchange Rate')
-        ax.set_title(f'Exchange Rates for {currency}')
+        ax.set_title(f'{currency}/PLN Exchange Rates')
         ax.grid(visible = True, axis = 'y', color = 'gray', linestyle = ':')
+        ax.grid(visible = True, axis = 'x', color = 'gray', linestyle = ':')
         
         plt.xticks(rotation = 45, ha = 'right')
 
@@ -201,7 +202,9 @@ def index():
 
         except Exception as e:
             error_message = str(e)
-            return render_template('index.html', error_message = error_message, available_currencies = available_currencies)
+            return render_template('index.html', error_message = error_message, chart_available = False, 
+                                   available_currencies = available_currencies, 
+                                   yesterday = datetime.now().date() - timedelta(days = 1))
 
         currency_rates = fetch_currency_rates(currency, start_date, end_date)
         
@@ -215,7 +218,8 @@ def index():
 
             return render_template('index.html', chart_available = True, available_currencies = available_currencies, 
                                    currency_data = get_currency_data(currency, start_date, end_date), 
-                                   yesterday = datetime.now().date() - timedelta(days = 1))
+                                   yesterday = datetime.now().date() - timedelta(days = 1),
+                                   start_date = start_date, end_date = end_date)
 
     return render_template('index.html', chart_available = False, available_currencies = available_currencies, 
                            yesterday = datetime.now().date() - timedelta(days = 1))

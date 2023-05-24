@@ -13,7 +13,9 @@ Here's an explanation of the application's components:
     - generate_chart(): Generates a chart using matplotlib for the selected currency and date range.
 - Define the main route: The main route '/' is defined using Flask's @app.route decorator. It handles both GET and POST requests.
     GET request: Renders the index.html template without a chart but with available currencies.
-    POST request: Validates the input dates, fetches the currency rates, saves them to the database, generates a chart, and renders the index.html template with the chart and available currencies.
+    POST request: Validates the input dates (max period 93 days as per API NBP, 'end date' can't be earlier than 'start date', 
+    neither date can be later than yesterday), fetches the currency rates, saves them to the database, generates a chart, 
+    and renders the index.html template with the chart and available currencies.
 
 To run this application locally, you need to install Flask and other required libraries. Use "pip install -r requirements.txt" to install the dependencies listed in the requirements.txt file. Then, run the "python app.py" command in your terminal or command prompt from the project directory to start the server. Finally, open your web browser and go to http://localhost:8000/ to access the application.
 
@@ -31,7 +33,8 @@ Oto wyjaśnienie poszczególnych sekcji kodu:
     - get_currency_data(): Definiowanie funkcji do pobierania danych waluty z bazy danych SQLite.
     - generate_chart(): Definiowanie funkcji do generowania wykresu dla wybranej waluty.
 - Definiowanie głównego adresu '/' za pomocą dekoratora @app.route w Flasku.
-    Obsługuje żądania GET i POST. Jeśli otrzymuje żądanie POST, waliduje wprowadzone daty,
+    Obsługuje żądania GET i POST. Jeśli otrzymuje żądanie POST, waliduje wprowadzone daty (max zakres 93 dni zgodnie z ograniczeniami API NBP, 
+    'end date' nie może być przed 'start date', żadna z dat nie może być późniejszą niż wczorajsza),
     pobiera kursy walut, zapisuje je w bazie danych, generuje wykres dla wybranej waluty
     i renderuje szablon index.html z wykresem i dostępnymi walutami.
     Jeśli otrzymuje żądanie GET, renderuje szablon index.html bez wykresu, ale z dostępnymi walutami.
