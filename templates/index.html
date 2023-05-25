@@ -3,90 +3,222 @@
 <head>
     <title>Exchange Rate Chart</title>
     <style>
+        div {
+            width: 640px;
+            margin: auto; 
+            color: #1f77b4;       
+        }
+
+        .form {
+            border: 2px solid;
+            border-color: #e7f6f8;
+            padding: 10px;
+            background-color: #f5fcfd;
+        }
+
+        .response {
+            border: 2px solid;
+            border-color: #e7f6f8;
+            padding: 10px;
+            background-color: #fcfcfc;
+        }
+
+        .chart {
+            margin-top: 20px;       
+        }
+
+        /* Datepickers styling */
+        .datepicker {
+            background-color: #e7f6f8;
+            border-width: 1px;
+            border-color: #1f77b4;
+            cursor: text;
+            box-sizing: border-box;
+            border-radius: 4px;
+            font-size: larger;
+            color: #1f77b4;
+            padding: 2px 4px;
+        }
+
+        /* "Generate chart" button styling */
+        .generate-button {
+            background-color: #c3f5fc;
+            color: #1f77b4;
+            font-weight: bold;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .generate-button:hover {
+            background-color: #9bf0fc;
+        }
+
+        /* Available currency tiles styling */
+        .currency-tiles {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        .currency-tile {
+            display: inline-block;
+            padding: 10px;
+            margin-right: 10px;
+            margin-bottom: 20px;
+            background-color: #e7f6f8;
+            border-width: 1px;
+            border-color: #1f77b4;
+            cursor: pointer;
+            flex-basis: calc(12.5% - 10px); /* Ustawienie szerokości na maksymalnie 8 kafelków w rzędzie */
+            box-sizing: border-box;
+            border-radius: 4px;
+        }
+        .currency-tile:hover {
+            background-color: #1f77b4;
+            color: #c3f5fc;
+            font-weight: bold;
+        }
+        .selected {
+            background-color: #1f77b4;
+            color: #c3f5fc;
+            font-weight: bold;
+        }
+
+        /* Datepickers styling */
+        .input-group {
+            display: flex;
+            gap: 20px; 
+            margin-bottom: 20px; 
+            margin-right: 20px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .input-group label {
+            flex-shrink: 0; 
+        }
+
         /* Table styling */
         .currency-table {
-          margin-top: 20px;
+            margin-top: 20px;
         }
-    
         table {
-          border-collapse: collapse;
+            border-collapse: collapse;
         }
-    
         thead {
-          background-color: #f5f5f5;
+            background-color: #e7f6f8;
         }
-    
         th, td {
-          padding: 10px;
-          text-align: left;
-          border-bottom: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #e7f6f8;
         }
-    
         th {
-          font-weight: bold;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
-
-    <!-- Display error message -->
-    {% if error_message != '' %}
-    <div id='error_message'>
-        <p style="color:red"><b>{{ error_message }}</b></p>
-    </div>
-    {% endif %}
-
     
     <!-- Input form -->
-    <div id='form'>
-    <h2>Select Currency and Date Range</h2>
+    <div id='form' class = 'form'>
+    <center><h2>Select Currency and Date Range</h2></center>
         <form method="post" action="/">
+
             <!-- Currency selection -->
-            <label for="currency">Currency:</label>
-            <select class="form-control" id="currency" name="currency">
+            <!-- <label for="currency"><b>Select currency:</b></label> -->
+            <div class="currency-tiles">
                 {% for currency in available_currencies %}
-                    <option value="{{ currency }}">{{ currency }}</option>
+                    <div class = "currency-tile {% if currency == selected_currency %}selected{% endif %}" onclick = "selectCurrency(this, '{{ currency }}')" align = 'center'>
+                        {{ currency }}
+                    </div>
                 {% endfor %}
-            </select><br>
+            </div>
+            <input type="hidden" id="selected_currency" name="currency" value = '{{ selected_currency  }}' required>
+
+            <!-- Highlight of selected currency tile -->
+            <!-- JavaScript built with help of ChatGPT -->
+            <script>
+                function selectCurrency(element, currency) {
+                    document.getElementById('selected_currency').value = currency; /* assign selected tile to var "currency" */
+
+                    var currencyTiles = document.getElementsByClassName("currency-tile");
+                    for (let i = 0; i < currencyTiles.length; i++) {
+                        currencyTiles[i].classList.remove("selected");
+                    } /* remove class 'selected' from every tile other than selected one */
+
+                    element.classList.add("selected");
+                }
+
+                // keep selected currency tile highlighed even after chart generation
+                var defaultCurrency = "{{ selected_currency }}";
+                var defaultTile = document.querySelector(".currency-tile[data-currency='" + defaultCurrency + "']");
+                defaultTile.classList.add("selected");
+
+            </script>
+
+            <div class="input-group">
+                <!-- Start date selection -->
+                <label for="start_date"><b>Start Date:</b></label>
+                <input class = "datepicker" type="date" id="start_date" name="start_date" max="{{ yesterday }}" required value="{{ start_date }}">
             
-            <!-- Start date selection -->
-            <label for="start_date">Start Date:</label>
-            <input type="date" id="start_date" name="start_date" max="{{ yesterday }}" required value ="{{ start_date }}"><br>
-            
-            <!-- End date selection -->
-            <label for="end_date">End Date:</label>
-            <input type="date" id="end_date" name="end_date" max="{{ yesterday }}" required value ="{{ end_date }}"><br>
-            
+                <!-- End date selection -->
+                <label for="end_date"><b>End Date:</b></label>
+                <input class = "datepicker" type="date" id="end_date" name="end_date" max="{{ yesterday }}" required value="{{ end_date }}">
+            </div>
+
             <!-- Generate chart button -->
-            <input type="submit" value="Generate Chart">
+            <div align = 'center'>
+                <input type="submit" value="Generate Chart" class="generate-button">
+            </div>
         </form>
     </div>
 
+    <!-- Display error message -->
+    {% if error_message %}
+    <div id='error_message' class = 'response'>
+        <p style="color:red"><b>Error: {{ error_message }}</b></p>
+    </div>
+    {% endif %}
+
     <!-- Display chart and currency rates table -->
     {% if chart_available %}
-    <div id='chart'>
-        <img src="../static/chart.png" alt="Exchange Rate Chart">
-    </div>
+    <div if = 'response' class = 'response'>
+        <div id='chart' class="chart" align = 'center'>
+            <img src="../static/chart.png" alt="Exchange Rate Chart">
+        </div>
 
-    <div id='table'>
-        <table class="currency-table">
-            <thead>
-              <tr>
-                <!-- Column headers -->
-                <th>Date</th>
-                <th>Rate</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for row in currency_data %}
-              <tr>
-                <!-- Rows with currency rate data -->
-                <td>{{ row[0] }}</td>
-                <td>{{ row[1] }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+        <div id='table'>
+            <table class="currency-table">
+                <thead>
+                <tr>
+                    <!-- Column headers -->
+                    <th>Date</th>
+                    <th>Rate</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for row in currency_data %}
+                <tr>
+                    <!-- Rows with currency rate data -->
+                    <td>{{ row[0] }}</td>
+                    <td>{{ row[1] }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div align = 'center'>
+            <br>
+            <a href="{{ url_for('download_csv') }}" download="currency_data.csv">
+                <button class="generate-button">Save to CSV</button>
+            </a>
+
+        </div>
+
     </div>
     {% endif %}
 
