@@ -15,16 +15,24 @@ from datetime import datetime, timedelta
 # "Tcl_AsyncDelete: async handler deleted by the wrong thread" error
 matplotlib.use('Agg')  
 
-# Define constants for data and static folders and database file path.
+# Define database file path
 data_folder = "data"
 db_file = os.path.join(data_folder, "currency_rates.db")
+
+# create folder for database if it doesn't exist
+if not os.path.exists(data_folder):
+    os.makedirs(data_folder)
+
+# Define static folder file path
 static_folder = 'static'
 chart_file = os.path.join(static_folder, "chart.png")
 
+# create static folder if it doesn't exist
+if not os.path.exists(static_folder):
+    os.makedirs(static_folder) 
+
+
 # Create a list of available currencies by fetching the data from NBP API.
-
-
-print('app log: Launching app, downloading list of currencies available on NBP API... ', end = '') # console info
 available_currencies = []
 url = "https://api.nbp.pl/api/exchangerates/tables/a"
 response = requests.get(url)
@@ -36,12 +44,11 @@ if response.status_code == 200:
             available_currencies = [rate["code"] for rate in rates]
             available_currencies.sort()
             
-print('Success! ') # console info
 
 # initiate Flask app
 app = Flask(__name__)
 
-def fetch_currency_rates(currency:str , start_date:str , end_date:str ) -> dict:
+def fetch_currency_rates(currency:str , start_date:str , end_date:str) -> dict:
     '''
     Fetches currency exchange rate from NBP API.
 
@@ -53,30 +60,24 @@ def fetch_currency_rates(currency:str , start_date:str , end_date:str ) -> dict:
     Returns:
         dict: JSON response containing exchange rate information or None if unsuccessful.
     '''
-
-    print('app log: Downloading data from NBP API... ', end = '') # console info
-
     url = f"https://api.nbp.pl/api/exchangerates/rates/a/{currency}/{start_date}/{end_date}"
     
     response = requests.get(url)
     
     error_message = None
     if response.status_code == 200:
-        print('Success!') # console info
         return error_message, response.json()
     
     elif response.status_code == 404:
-        error_message = 'Error 404: No data found for selected time frame.'
-        print(f'{error_message}') # console info
+        error_message = 'Error 404: No data found for selected currency and/or time frame.'
         return error_message, None
     
     else:
         error_message = f'Failure, status code: {response.status_code}.'
-        print(f'{error_message}') # console info
         return error_message, None
 
 
-def save_currency_rates_to_db(currency:str , currency_rates:dict) -> None:
+def save_currency_rates_to_db(currency:str , currency_rates:dict, db_file:str) -> None:
     '''
     Saves fetched exchange rate information to SQLite database.
 
@@ -87,10 +88,6 @@ def save_currency_rates_to_db(currency:str , currency_rates:dict) -> None:
     Returns:
         None
     '''
-
-    if not os.path.exists(data_folder):
-        os.makedirs(data_folder)
-
     conn = sqlite3.connect(db_file)
         
     with conn:   
@@ -103,12 +100,13 @@ def save_currency_rates_to_db(currency:str , currency_rates:dict) -> None:
         for item in currency_rates['rates']:
             date = item['effectiveDate']
             rate = item['mid']
+            currency = currency
             rows_to_insert.append((date, currency, rate))
         
         c.executemany("INSERT INTO rates VALUES (?, ?, ?)", rows_to_insert)
 
 # Function to get currency data from SQLite database.
-def get_currency_data(currency:str, start_date:str, end_date:str) -> list[tuple]:
+def get_currency_data(currency:str, start_date:str, end_date:str, db_file:str) -> list[tuple]:
     '''
     Retrieves currency data from SQLite database.
 
@@ -121,6 +119,8 @@ def get_currency_data(currency:str, start_date:str, end_date:str) -> list[tuple]
         list[tuple]: List of tuples containing date and exchange rate.
     '''
     
+    
+    
     conn = sqlite3.connect(db_file)
      
     with conn:   
@@ -131,7 +131,7 @@ def get_currency_data(currency:str, start_date:str, end_date:str) -> list[tuple]
         return c.fetchall()
 
 # Function to generate a chart for the selected currency.
-def generate_chart(currency:str, start_date:str, end_date:str):
+def generate_chart(selected_currency:str, start_date:str, end_date:str, db_file:str):
     '''
     Generates a chart for the selected currency.
 
@@ -143,70 +143,62 @@ def generate_chart(currency:str, start_date:str, end_date:str):
     Returns:
         None
     '''
+
+    currency_data = get_currency_data(selected_currency, start_date, end_date, db_file)
+
+    dates = [row[0] for row in currency_data]
+    rates = [row[1] for row in currency_data]
     
-    if not os.path.exists(static_folder):
-        os.makedirs(static_folder) 
-        
-    conn = sqlite3.connect(db_file)
+    # Create figure and axis objects
+    fig, ax = plt.subplots()
 
-    with conn:   
-        c = conn.cursor()
+    # Format the dates on the x-axis
+    major_locator_x = mdates.AutoDateLocator(interval_multiples = True)        
+    ax.xaxis.set_major_locator(major_locator_x)
+    minor_locator_x = ticker.MultipleLocator(1)
+    ax.xaxis.set_minor_locator(minor_locator_x)
 
-        c.execute("SELECT date, rate FROM rates WHERE currency=? AND date BETWEEN ? AND ?", 
-                  (currency, start_date, end_date))
-        rows = c.fetchall()
+    # Plot the chart
+    ax.plot(dates, rates, linewidth = 2, marker = '.', markersize = 7)
 
-        dates = [row[0] for row in rows]
-        rates = [row[1] for row in rows]
-        
-        # Create figure and axis objects
-        fig, ax = plt.subplots()
+    ax.set_ylabel('Exchange Rate [PLN]', fontdict = {'weight': 'bold'})
+    ax.set_title(f'{selected_currency}/PLN Exchange Rates', fontdict = {'weight': 'bold'})
+    
+    # set fig & style
+    axes_color = '#1f77b4'
+    grid_color = '#e7f6f8'
+    bg_color = '#fcfcfc'
+    
+    fig.set_facecolor(bg_color)
+    ax.patch.set_facecolor(bg_color)
+    
+    ax.grid(visible = True, axis = 'y', color = grid_color, linestyle = ':')
+    ax.grid(visible = True, axis = 'x', color = grid_color, linestyle = ':')
+    
+    ax.spines['bottom'].set_color(axes_color)
+    ax.spines['top'].set_color(axes_color) 
+    ax.spines['right'].set_color(axes_color)
+    ax.spines['left'].set_color(axes_color)
+    
+    ax.tick_params(axis='x', colors=axes_color)
+    ax.tick_params(axis='y', colors=axes_color)
+    
+    ax.yaxis.label.set_color(axes_color)
+    ax.xaxis.label.set_color(axes_color)
+    
+    ax.title.set_color(axes_color)
+    
+    plt.xticks(rotation = 45, ha = 'right')
 
-        # Format the dates on the x-axis
-        major_locator_x = mdates.AutoDateLocator(interval_multiples = True)        
-        ax.xaxis.set_major_locator(major_locator_x)
-        minor_locator_x = ticker.MultipleLocator(1)
-        ax.xaxis.set_minor_locator(minor_locator_x)
+    # Adjust the margins
+    plt.tight_layout()
 
-        # Plot the chart
-        ax.plot(dates, rates, linewidth = 2, marker = '.', markersize = 7)
-
-        ax.set_ylabel('Exchange Rate [PLN]', fontdict = {'weight': 'bold'})
-        ax.set_title(f'{currency}/PLN Exchange Rates', fontdict = {'weight': 'bold'})
-        
-        # set fig & style
-        axes_color = '#1f77b4'
-        grid_color = '#e7f6f8'
-        bg_color = '#fcfcfc'
-        
-        fig.set_facecolor(bg_color)
-        ax.patch.set_facecolor(bg_color)
-        
-        ax.grid(visible = True, axis = 'y', color = grid_color, linestyle = ':')
-        ax.grid(visible = True, axis = 'x', color = grid_color, linestyle = ':')
-        
-        ax.spines['bottom'].set_color(axes_color)
-        ax.spines['top'].set_color(axes_color) 
-        ax.spines['right'].set_color(axes_color)
-        ax.spines['left'].set_color(axes_color)
-        
-        ax.tick_params(axis='x', colors=axes_color)
-        ax.tick_params(axis='y', colors=axes_color)
-        
-        ax.yaxis.label.set_color(axes_color)
-        ax.xaxis.label.set_color(axes_color)
-        
-        ax.title.set_color(axes_color)
-        
-        plt.xticks(rotation = 45, ha = 'right')
-
-        # Adjust the margins
-        plt.tight_layout()
-
-        # Save the chart to a file
-        plt.savefig(chart_file)  
-        
-        plt.close()
+    # Save the chart to a file
+    plt.savefig(chart_file)  
+    
+    plt.close()
+    
+    return currency_data
 
 # Main route '/'
 @app.route('/', methods = ['GET', 'POST'])
@@ -224,7 +216,6 @@ def index():
     
     if request.method == 'POST':
         
-        print('app log: Getting user\'s input on data selection... ', end = '') # console info
         selected_currency = request.form.get('currency')
         
         start_date = datetime.strptime(request.form.get('start_date'), '%Y-%m-%d').date()
@@ -242,30 +233,25 @@ def index():
 
         except Exception as e:
             error_message = str(e)
-            print(f'Failure: {error_message}') # console info
             return render_template('index.html', error_message = error_message, chart_available = False, 
                                    available_currencies = available_currencies, yesterday = yesterday)
         
-        print('Success!') # console info
-
         error_message, currency_rates = fetch_currency_rates(selected_currency, start_date, end_date)
-        
+                
         if currency_rates:
-            save_currency_rates_to_db(selected_currency, currency_rates)
+            save_currency_rates_to_db(selected_currency, currency_rates, db_file)
             
-            print('app log: Generating chart... ', end = '') # console info
-
             @after_this_request
             def send_chart(response):
-                generate_chart(selected_currency, start_date, end_date)
+                generate_chart(selected_currency, start_date, end_date, db_file)
                 return response
             
-            print('Success, all set!') # console info
-
+            currency_table = get_currency_data(selected_currency, start_date, end_date, db_file)
+            
             return render_template('index.html', error_message = error_message, chart_available = True, 
                                    available_currencies = available_currencies, selected_currency = selected_currency,
                                    yesterday = yesterday, start_date = start_date, end_date = end_date,
-                                   currency_data = get_currency_data(selected_currency, start_date, end_date))
+                                   currency_data = currency_table)
         
     return render_template('index.html', error_message = error_message, chart_available = False, 
                            available_currencies = available_currencies, yesterday = yesterday)
