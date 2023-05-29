@@ -270,28 +270,5 @@ def index():
     return render_template('index.html', error_message = error_message, chart_available = False, 
                            available_currencies = available_currencies, yesterday = yesterday)
 
-@app.route('/download_csv', methods=['GET'])
-def download_csv():
-    currency = request.args.get('currency')
-    start_date = request.args.get('start_date')
-    end_date = request.args.get('end_date')
-
-    currency_data = get_currency_data(currency, start_date, end_date)
-
-    # Create a temporary CSV file
-    temp_csv_file = os.path.join(data_folder, "temp.csv")
-    with open(temp_csv_file, mode='w', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow(['Date', 'Rate'])
-        writer.writerows(currency_data)
-
-    # Prepare the response with the CSV file for download
-    @after_this_request
-    def remove_temp_csv(response):
-        os.remove(temp_csv_file)
-        return response
-
-    return send_file(temp_csv_file, as_attachment=True, attachment_filename='currency_data.csv')
-
 if __name__ == '__main__':
     app.run(debug = False, port = 8000)
