@@ -19,6 +19,8 @@ Here's an explanation of the application's components:
 
 To run this application locally, you need to install Flask and other required libraries. Use "pip install -r requirements.txt" to install the dependencies listed in the requirements.txt file. Then, run the "python app.py" command in your terminal or command prompt from the project directory to start the server. Finally, open your web browser and go to http://localhost:8000/ to access the application.
 
+-----------------------------------------------
+
 [PL]
 Jest to aplikacja Python Flask przeznaczona dla deweloperów Pythona. Pobiera ona kursy wymiany walut z API NBP, zapisuje je w bazie danych SQLite i generuje wykres dla wybranej waluty.
 
