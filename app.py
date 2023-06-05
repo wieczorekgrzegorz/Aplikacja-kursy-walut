@@ -166,7 +166,7 @@ def generate_chart(currency_table:list[tuple], selected_currency:str) -> None:
 
     ax.plot(dates, rates, linewidth = 2, marker = '.', markersize = 7)
 
-    ax.set_ylabel('Exchange Rate [PLN]', fontdict = {'weight': 'bold'})
+    ax.set_ylabel(f'Exchange rates', fontdict = {'weight': 'bold'})
     ax.yaxis.label.set_color(axes_color)
     
     major_locator_x = mdates.AutoDateLocator(interval_multiples = True)        

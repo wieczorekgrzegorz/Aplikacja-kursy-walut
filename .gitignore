@@ -1,2 +1,3 @@
 data/currency_rates.db
 static/chart.png
+__pycache__/app.cpython-311.pyc

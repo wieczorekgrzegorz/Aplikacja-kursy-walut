@@ -12,36 +12,31 @@ Here's an explanation of the application's components:
     - get_currency_data(): Retrieves currency data from the SQLite database based on the selected currency and date range.
     - generate_chart(): Generates a chart using matplotlib for the selected currency and date range.
 - Define the main route: The main route '/' is defined using Flask's @app.route decorator. It handles both GET and POST requests.
-    GET request: Renders the index.html template without a chart but with available currencies.
-    POST request: Validates the input dates (max period 93 days as per API NBP, 'end date' can't be earlier than 'start date', 
-    neither date can be later than yesterday), fetches the currency rates, saves them to the database, generates a chart, 
-    and renders the index.html template with the chart and available currencies.
+    - GET request: Renders the index.html template without a chart but with available currencies.
+    - POST request: Validates the input dates (max period 93 days as per API NBP, 'end date' can't be earlier than 'start date', neither date can be later than yesterday), fetches the currency rates, saves them to the database, generates a chart, and renders the index.html template with the chart and available currencies.
 
 To run this application locally, you need to install Flask and other required libraries. Use "pip install -r requirements.txt" to install the dependencies listed in the requirements.txt file. Then, run the "python app.py" command in your terminal or command prompt from the project directory to start the server. Finally, open your web browser and go to http://localhost:8000/ to access the application.
 
 -----------------------------------------------
 
 [PL]
-Jest to aplikacja Python Flask przeznaczona dla deweloperów Pythona. Pobiera ona kursy wymiany walut z API NBP, zapisuje je w bazie danych SQLite i generuje wykres dla wybranej waluty.
+To jest aplikacja Python Flask przeznaczona dla programistów Pythona. Pobiera ona kursy wymiany walut z API NBP, zapisuje je w bazie danych SQLite i generuje wykres dla wybranej waluty. Przedstawia praktyczny przykład integracji interfejsów API, pracy z bazami danych oraz generowania wizualizacji.
 
-Oto wyjaśnienie poszczególnych sekcji kodu:
+Oto wyjaśnienie poszczególnych komponentów aplikacji:
 
-- Import necessary libraries: Importowanie niezbędnych bibliotek.
-- Define constants: Definiowanie stałych dla folderów z danymi i statycznymi oraz ścieżki pliku bazy danych.
-- Create a list of available currencies: Tworzenie listy dostępnych walut poprzez pobranie danych z API NBP.
-- Define functions:
-    - fetch_currency_rates(): Definiowanie funkcji do pobierania kursów walut z API NBP.
-    - save_currency_rates_to_db(): Definiowanie funkcji do zapisywania kursów walut w bazie danych SQLite.
-    - get_currency_data(): Definiowanie funkcji do pobierania danych waluty z bazy danych SQLite.
-    - generate_chart(): Definiowanie funkcji do generowania wykresu dla wybranej waluty.
-- Definiowanie głównego adresu '/' za pomocą dekoratora @app.route w Flasku.
-    Obsługuje żądania GET i POST. Jeśli otrzymuje żądanie POST, waliduje wprowadzone daty (max zakres 93 dni zgodnie z ograniczeniami API NBP, 
-    'end date' nie może być przed 'start date', żadna z dat nie może być późniejszą niż wczorajsza),
-    pobiera kursy walut, zapisuje je w bazie danych, generuje wykres dla wybranej waluty
-    i renderuje szablon index.html z wykresem i dostępnymi walutami.
-    Jeśli otrzymuje żądanie GET, renderuje szablon index.html bez wykresu, ale z dostępnymi walutami.
+- Importowanie niezbędnych bibliotek: Wczytywane są wymagane biblioteki, w tym Flask do tworzenia aplikacji webowych.
+- Definiowanie stałych: Zdefiniowane są stałe dla folderów z danymi i statycznymi plikami oraz ścieżka do pliku bazy danych.
+- Tworzenie listy dostępnych walut: Aplikacja pobiera dane o walutach z API NBP i tworzy posortowaną listę dostępnych walut.
+- Definiowanie funkcji:
+    - fetch_available_currencies(): Pobiera dostępne waluty z API NBP.
+    - is_data_already_in_cache(): Sprawdza, czy żądane dane są już dostępne w lokalnej bazie danych.
+    - fetch_currency_rates(): Pobiera kursy wymiany walut z API NBP dla określonej waluty i zakresu dat.
+    - save_currency_rates_to_db(): Zapisuje pobrane informacje o kursach wymiany do bazy danych SQLite.
+    - get_data_from_local_db(): Pobiera dane o walucie z bazy danych SQLite na podstawie wybranej waluty i zakresu dat.
+    - generate_chart(): Generuje wykres za pomocą biblioteki matplotlib dla wybranej waluty i zakresu dat.
+    - validate_user_input(): Sprawdza poprawność wprowadzonych przez użytkownika daty początkowej i końcowej.
+- Definiowanie głównej ścieżki: Główna ścieżka '/' jest definiowana przy użyciu dekoratora @app.route w Flasku. Obsługuje zarówno żądania GET, jak i POST.
+    - Żądanie GET: Renderuje szablon index.html bez wykresu, ale z dostępnymi walutami.
+    - Żądanie POST: Sprawdza poprawność wprowadzonych dat, sprawdza, czy dane są już w pamięci podręcznej, pobiera kursy walut w razie potrzeby, zapisuje je w bazie danych, generuje wykres, a następnie renderuje szablon index.html z wykresem i dostępnymi walutami.
 
-Aby uruchomić tę aplikację lokalnie na swoim komputerze, musisz zainstalować Flask i inne wymagane biblioteki.
-Możesz to zrobić, uruchamiając komendę "pip install -r requirements.txt" w terminalu lub wierszu polecenia, będąc w katalogu projektu.
-Następnie możesz uruchomić serwer, wpisując "python app.py" w terminalu lub wierszu polecenia, będąc w katalogu projektu.
-Wreszcie, otwórz przeglądarkę internetową i przejdź pod adres http://localhost:8000/, aby uzyskać dostęp do aplikacji.
+Aby uruchomić tę aplikację lokalnie, należy zainstalować Flask i inne wymagane biblioteki. Użyj polecenia pip install -r requirements.txt, aby zainstalować zależności wymienione w pliku requirements.txt. Następnie, uruchom polecenie python app.py w terminalu lub wierszu polecenia z folderu projektu, aby uruchomić serwer. Wreszcie, otwórz przeglądarkę internetową i przejdź pod adres http://localhost:8000/, aby uzyskać dostęp do aplikacji.
