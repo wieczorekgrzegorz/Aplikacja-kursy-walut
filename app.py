@@ -54,7 +54,7 @@ def is_data_already_in_cache(currency: str, start_date: str, end_date: str, db_f
         if date_to_check.isoweekday() < 6:
             dates_to_check.append(date_to_check.strftime('%Y-%m-%d'))
             
-    conn = sqlite3.connect(db_file, detect_types = sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES)
+    conn = sqlite3.connect(db_file)
     conn.row_factory = lambda cursor, row: row[0]
     cached_list = []
      
@@ -99,8 +99,7 @@ def fetch_currency_rates(currency:str , start_date:str , end_date:str) -> tuple[
         return error_message, None
 
 def save_currency_rates_to_db(currency:str, currency_rates:dict, db_file:str) -> None:
-    conn = sqlite3.connect(db_file, detect_types = sqlite3.PARSE_DECLTYPES |
-                             sqlite3.PARSE_COLNAMES)
+    conn = sqlite3.connect(db_file)
     with conn:
         c = conn.cursor()
         c.execute('''CREATE TABLE IF NOT EXISTS rates(
