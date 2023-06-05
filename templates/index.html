@@ -28,7 +28,6 @@
             <input type="hidden" id="selected_currency" name="currency" value = '{{ selected_currency  }}' required>
 
             <!-- Highlight of selected currency tile -->
-            <!-- JavaScript built with help of ChatGPT -->
             <script>
                 function selectCurrency(element, currency) {
                     document.getElementById('selected_currency').value = currency; /* assign selected tile to var "currency" */
@@ -45,7 +44,6 @@
                 var defaultCurrency = "{{ selected_currency }}";
                 var defaultTile = document.querySelector(".currency-tile[data-currency='" + defaultCurrency + "']");
                 defaultTile.classList.add("selected");
-
             </script>
 
             <div class="input-group">
