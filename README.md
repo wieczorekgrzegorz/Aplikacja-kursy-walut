@@ -1,3 +1,6 @@
+[![pylint](https://github.com/wieczorekgrzegorz/Aplikacja-kursy-walut/actions/workflows/pylint_test.yml/badge.svg)](https://github.com/wieczorekgrzegorz/Aplikacja-kursy-walut/actions/workflows/pylint_test.yml)
+[![pytest](https://github.com/wieczorekgrzegorz/Aplikacja-kursy-walut/actions/workflows/pytest.yml/badge.svg)](https://github.com/wieczorekgrzegorz/Aplikacja-kursy-walut/actions/workflows/pytest.yml)
+
 # [ENG]
 
 ## Description
