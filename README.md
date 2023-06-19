@@ -1,6 +1,16 @@
-[ENG]
+# [ENG]
+
+## Description
 This is a Python Flask application designed for Python developers. It fetches currency exchange rates from the NBP API, saves them to an SQLite database, and generates a chart for a selected currency. It provides a practical example of integrating APIs, working with databases, and generating visualizations.
 
+## Instruction
+
+- To run this application locally, you need to install Flask and other required libraries. 
+- Use "pip install -r requirements.txt" to install the dependencies listed in the requirements.txt file. 
+- Then, run the "python app.py" command in your terminal or command prompt from the project directory to start the server. 
+- Finally, open your web browser and go to http://localhost:8000/ to access the application.
+
+## How it works
 Here's an explanation of the application's components:
 
 - Import necessary libraries: The required libraries, including Flask for web development, are imported.
@@ -15,14 +25,20 @@ Here's an explanation of the application's components:
     - GET request: Renders the index.html template without a chart but with available currencies.
     - POST request: Validates the input dates (max period 93 days as per API NBP, 'end date' can't be earlier than 'start date', neither date can be later than yesterday), fetches the currency rates, saves them to the database, generates a chart, and renders the index.html template with the chart and available currencies.
 
-To run this application locally, you need to install Flask and other required libraries. Use "pip install -r requirements.txt" to install the dependencies listed in the requirements.txt file. Then, run the "python app.py" command in your terminal or command prompt from the project directory to start the server. Finally, open your web browser and go to http://localhost:8000/ to access the application.
 
 -----------------------------------------------
 
-[PL]
+# [PL]
+
+## Opis aplikacji
 To jest aplikacja Python Flask przeznaczona dla programistów Pythona. Pobiera ona kursy wymiany walut z API NBP, zapisuje je w bazie danych SQLite i generuje wykres dla wybranej waluty. Przedstawia praktyczny przykład integracji interfejsów API, pracy z bazami danych oraz generowania wizualizacji.
 
-Oto wyjaśnienie poszczególnych komponentów aplikacji:
+## Instrukcja
+- Aby uruchomić tę aplikację lokalnie, należy zainstalować Flask i inne wymagane biblioteki. Użyj polecenia pip install -r requirements.txt, aby zainstalować zależności wymienione w pliku requirements.txt.
+- Uruchom polecenie python app.py w terminalu lub wierszu polecenia z folderu projektu, aby uruchomić serwer.
+- Otwórz przeglądarkę internetową i przejdź pod adres http://localhost:8000/, aby uzyskać dostęp do aplikacji.
+
+## Opis działania
 
 - Importowanie niezbędnych bibliotek: Wczytywane są wymagane biblioteki, w tym Flask do tworzenia aplikacji webowych.
 - Definiowanie stałych: Zdefiniowane są stałe dla folderów z danymi i statycznymi plikami oraz ścieżka do pliku bazy danych.
@@ -38,5 +54,3 @@ Oto wyjaśnienie poszczególnych komponentów aplikacji:
 - Definiowanie głównej ścieżki: Główna ścieżka '/' jest definiowana przy użyciu dekoratora @app.route w Flasku. Obsługuje zarówno żądania GET, jak i POST.
     - Żądanie GET: Renderuje szablon index.html bez wykresu, ale z dostępnymi walutami.
     - Żądanie POST: Sprawdza poprawność wprowadzonych dat, sprawdza, czy dane są już w pamięci podręcznej, pobiera kursy walut w razie potrzeby, zapisuje je w bazie danych, generuje wykres, a następnie renderuje szablon index.html z wykresem i dostępnymi walutami.
-
-Aby uruchomić tę aplikację lokalnie, należy zainstalować Flask i inne wymagane biblioteki. Użyj polecenia pip install -r requirements.txt, aby zainstalować zależności wymienione w pliku requirements.txt. Następnie, uruchom polecenie python app.py w terminalu lub wierszu polecenia z folderu projektu, aby uruchomić serwer. Wreszcie, otwórz przeglądarkę internetową i przejdź pod adres http://localhost:8000/, aby uzyskać dostęp do aplikacji.
